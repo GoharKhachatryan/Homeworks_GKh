@@ -6,60 +6,128 @@
 #include <unistd.h>
 #include <cerrno>
 #include <arpa/inet.h>
-namespace http{
+
+
+class http{
+public:
+	// constructor
+	http()
+		: port(8080)
+	{}
+
+	explicit http(int port)
+		: port(port)
+	{}
+
+	// function to start server
+	void start(){
+
+	}
+
+	// handling (?)
+private:
+	int port;
 
 	class Request{
-		std::string path;
-		std::string body;
+	public:
+		// constructor
+		Request()
+			: method{}
+			, path{}
+			, header{}
+			, body{}
+			, version{}
+		{}
+	private:
 		std::string method;
-		std::string version;
+		std::string path;
 		std::map<std::string, std::string> header;
-		// Content length, content type, accept type (?)
-	};
-
-	class Response{
 		std::string body;
 		std::string version;
-		std::string statusNum;
-		std::map<std::string, std::string> header;
-		// Content length, content type
+		// Content length, content type, accept type (?)
+
+		// function to receive bytes from socket to make request string (DONE)
+		std::string receiveRequestAsString(int sFd){
+			long bytes = -1;
+			// string where we will read bytes
+			std::string result;
+
+			// starting to read in the infinite loop
+			while(true){
+				// creating a buffer to read bytes part by part
+				char* buff = new char[500];
+
+				// reading with recv from socket with descriptor sFd
+				bytes = recv(sFd, (void *) buff, 500, 0);
+
+				// possible cases
+
+				// error during the reading
+				if(bytes < 0){
+					std::cerr << "Something went wrong during reading from socket with FD " << sFd
+						  << "Error code is: " << errno << std::endl;
+					close(sFd);
+					return {};
+				}
+
+				// nothing to read
+				if(bytes == 0){
+					// break the infinite loop 'cuz reading from socket is over
+					break;
+				}
+
+				// the reading was success so we can add the buff to result string
+				result = result + buff;
+			}
+			// after reading everything from socket function will return the result string
+			return result;
+		}
+
+
+		// function to make a Request class object from string
+                Request stringToRequest(long bytes, std::string &request){
+			// function split_string
+		}
+
+
 	};
 
-	class Server{
-		int port;
-		int threadNum;
+	// class Response
+	class Response{
+	public:
+		// constructor
+		Response()
+			: version{}
+			, statusNumber{}
+			, statusText{}
+			, header{}
+			, body{}
+		{}
+	private:
+		std::string version;
+		std::string statusNumber;
+		std::string statusText;
+		std::map<std::string, std::string> header;
+		std::string body;
+		// Content length, content type (?)
 
-		void start() const{
-			int serverFd = socket(AF_INET, SOCK_STREAM, 0);
-			if(serverFd < 0){
-				std::cerr << "Couldn't create a socket" << std::endl;
-				exit(errno);
-			}
-			sockaddr_in address;
-			address.sin_family = AF_INET;
-			address.sin_port = htons(port);
-			address.sin_addr.s_addr = htonl(INADDR_ANY);
+		// function to handle (?)
+		Response makeResponse(Request request){
 
-			int bound = bind(serverFd, (const struct sockaddr*) &address, sizeof(address));
-			if(bound < 0){
-				std::cerr << "Couldn't bind to port" << std::endl;
-				exit(errno);
-			}
+		}
 
-			int listening = listen(serverFd, 1024);
-			if(listening < 0){
-				std::cerr << "Couldn't start listening" << std::endl;
-				exit(errno);
-			}
+		// convert Response object to string
+		std::string ResponseToString(Response response){
 
-			while(true){
-				//?
-			}
+		}
 
+		// sent the ready string through socket
+		void sendResponse(int sFd, std::string response){
+			return;
 		}
 	};
 
-}
+};
 
 
 int main(){
