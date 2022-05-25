@@ -184,51 +184,6 @@ private:
 };
 
 
-/*// function to receive bytes from socket to make request string
-std::string receiveRequestAsString(int sFd){
-	long bytes = -1;
-        // string where we will read bytes
-        std::string result;
-
-	// starting to read in the infinite loop
-	while(true){
-
-		// creating a buffer to read bytes part by part
-		char* buff = new char[500];
-
-                // reading with recv from socket with descriptor sFd
-                bytes = recv(sFd, (void *) buff, 500, 0);
-
-                // possible cases
-
-                // error during the reading
-                if(bytes < 0){
-			std::cerr << "Something went wrong during reading from socket with FD " << sFd
-				  << "Error code is: " << errno << std::endl;
-			close(sFd);
-                        return {};
-		}
-
-                // nothing to read
-                if(bytes == 0){
-			// break the infinite loop 'cuz reading from socket is over
-                        break;
-		}
-
-                // the reading was success so we can add the buff to result string
-                result = result + buff;
-	}
-        // after reading everything from socket function will return the result string
-        return result;
-}
-
-
-// sent the response string through socket
-void sendResponse(int sFd, std::string response){
-
-}
-*/
-
 int main(){
 
 	return 0;
