@@ -48,14 +48,29 @@ std::string receiveRequestAsString(int sFd){
 
 // sent the response string through socket
 void sendResponse(int sFd, std::string response){
+	long bytes = -1;
+	// cast to char*
+	char* responseChar = const_cast<char*>(response.c_str());
 
+	// send bytes through socket
+	bytes = send(sFd, (void*) responseChar, response.size(), 0);
+
+	// error during sending bytes
+	if(bytes < 0){
+		std::cerr << "Something went wrong during sending bytes through socket" << std::endl;
+		close(sFd);
+		exit(errno);
+	}
+	close(sFd);
+	return;
 }
-
-
 
 
 class http{
 public:
+	// class Handler(???)
+	class Handler{};
+
 	// constructor
 	http()
 		: port(8080)
@@ -117,27 +132,30 @@ public:
 		}
 	}
 
-	// handling (?)
+
 private:
 	int port;
+
+	// map to save handlers for each type of method/path (?)
+	//std::map<std::pair<std::string, std::string>, Handler> handler;
+
 
 	class Request{
 	private:
 		std::string method;
 		std::string path;
+		std::string version;
 		std::map<std::string, std::string> header;
 		std::string body;
-		std::string version;
-		// Content length, content type, accept type (?)
 
 	public:
                 // constructor
                 Request()
                         : method{}
                         , path{}
+			, version{}
                         , header{}
                         , body{}
-                        , version{}
                 {}
 
 		// function to make a Request class object from string
@@ -177,7 +195,26 @@ private:
 
 		// convert Response object to string
 		std::string ResponseToString(){
+			std::string res;
 
+			// the starting line
+			res += version + ' ';
+			res += statusNumber + ' ';
+			res += statusText + '\n';
+
+			// headers by form key: value \n
+			for(auto x : header){
+				res += x.first + ':' + ' ' + x.second + '\n';
+			}
+
+			// if body is empty return the answer string
+			if(body.empty() == true){
+				return res;
+			}
+
+			// adding body and return the answer string
+			res += '\n' + body;
+			return res;
 		}
 	};
 
