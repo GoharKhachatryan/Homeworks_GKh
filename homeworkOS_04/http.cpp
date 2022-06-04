@@ -68,8 +68,7 @@ void sendResponse(int sFd, std::string response){
 
 class http{
 public:
-	// class Handler(???)
-	class Handler{};
+
 
 	// constructor
 	http()
@@ -158,10 +157,52 @@ private:
                         , body{}
                 {}
 
+			
 		// function to make a Request class object from string
                 void stringToRequest(std::string &request){
-			
-		}
+                        // part before headers: (before '\n')
+                        size_t firstPartEnd = request.find("\n");
+                        std::string firstPart = request.substr(0, firstPartEnd);
+                        // erase the first part + \n
+                        request.erase(0, firstPartEnd + 2);
+                        // split FirstPart with " "
+                        size_t pos = firstPart.find(" ");
+                        method = firstPart.substr(0, pos);
+                        // erase method and " "
+                        firstPart.erase(0, pos);
+                        // repeat for path and version
+                        pos = firstPart.find(" ");
+                        path = firstPart.substr(0, pos);
+                        firstPart.erase(0, pos);
+                        pos = firstPart.find(" ");
+                        version = firstPart.substr(0, pos);
+                        // done with the part before headers
+
+                        // dealing with headers
+                        size_t headerEnd = request.find("\n");
+
+                        // second part is the headers with \n
+                        std::string secondPart = request.substr(0, headerEnd + 2);
+                        request.erase(0, headerEnd + 2);
+                        while(secondPart.empty() == false){
+                                // find key in string with headers
+                                size_t dots = secondPart.find(": ");
+                                std::string key = secondPart.substr(0, dots);
+                                secondPart.erase(0, dots + 2);
+                                // find value in string
+                                size_t newstr = secondPart.find("\n");
+                                std::string value = secondPart.substr(0, newstr);
+                                secondPart.erase(0, newstr + 2);
+                                // add to map
+                                header[key] = value;
+                        }
+
+                        // everything that was left in request string is body
+                        body = request;
+
+
+                        return;
+                }
 
 
 	};
